@@ -1,1 +1,19 @@
-flutter/ephemeral
+# Flutter/Dart
+.dart_tool/
+.packages
+.pub/
+build/
+ios/Pods/
+android/.gradle/
+android/.idea/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
