@@ -34,4 +34,16 @@ class ConversionRecord {
       result: (json['result'] as num?)?.toDouble() ?? 0,
     );
   }
+
+  /// Create ConversionRecord from Supabase JSON
+  factory ConversionRecord.fromSupabaseJson(Map<String, dynamic> json) {
+    return ConversionRecord(
+      timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ?? DateTime.now(),
+      from: (json['from_currency'] as String?) ?? 'USD',
+      to: (json['to_currency'] as String?) ?? 'NGN',
+      amount: (json['amount'] as num?)?.toDouble() ?? 0,
+      rate: (json['rate'] as num?)?.toDouble() ?? 0,
+      result: (json['result'] as num?)?.toDouble() ?? 0,
+    );
+  }
 }

@@ -1,17 +1,32 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-// ⬇️ If you want top AppBar + bottom nav tabs, use the RootShell:
-import 'features/shell/root_shell.dart';
+import 'package:device_preview/device_preview.dart';
+// Core
+import 'core/theme/app_theme.dart';
+import 'core/auth/auth_wrapper.dart';
+import 'core/supabase/supabase_config.dart';
+import 'core/notifications/notification_service.dart';
 
 // ⬇️ If you prefer to land directly on the conversion page, keep this import
 // and set home: const ConversionScreen() instead of RootShell.
 // import 'features/conversion/screens/conversion_screen.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const ProviderScope(child: CurrenSeeApp()));
+  
+  // Initialize Supabase
+  await SupabaseConfig.initialize();
+  
+  // Initialize notifications
+  await NotificationService().initialize();
+  
+  runApp(
+    DevicePreview(
+      enabled: true, // Set to false to disable device preview
+      builder: (context) => const ProviderScope(child: CurrenSeeApp()),
+    ),
+  );
 }
 
 class CurrenSeeApp extends StatelessWidget {
@@ -19,26 +34,19 @@ class CurrenSeeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const seed = Color(0xFF2A7BE4);
-
     return MaterialApp(
-      title: 'App-CurrenSee',
+      title: 'CurrenSee',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorSchemeSeed: seed,
-        brightness: Brightness.light,
-      ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorSchemeSeed: seed,
-        brightness: Brightness.dark,
-      ),
+      locale: DevicePreview.locale(context),
+      builder: DevicePreview.appBuilder,
+      
+      // Modern Fintech Theme
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
 
-      // ✅ Choose one:
-      home: const RootShell(),           // AppBar + Bottom Navigation
-      // home: const ConversionScreen(), // Direct to conversion page
+      // Auth Wrapper - handles login/main app
+      home: const AuthWrapper(),
     );
   }
 }
