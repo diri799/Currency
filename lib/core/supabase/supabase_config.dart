@@ -20,16 +20,23 @@ class SupabaseConfig {
       return;
     }
     
-    await Supabase.initialize(
-      url: supabaseUrl,
-      anonKey: supabaseAnonKey,
-      authOptions: const FlutterAuthClientOptions(
-        authFlowType: AuthFlowType.pkce,
-      ),
-      realtimeClientOptions: const RealtimeClientOptions(
-        logLevel: RealtimeLogLevel.info,
-      ),
-    );
+    try {
+      print('Initializing Supabase with URL: $supabaseUrl');
+      await Supabase.initialize(
+        url: supabaseUrl,
+        anonKey: supabaseAnonKey,
+        authOptions: const FlutterAuthClientOptions(
+          authFlowType: AuthFlowType.pkce,
+        ),
+        realtimeClientOptions: const RealtimeClientOptions(
+          logLevel: RealtimeLogLevel.info,
+        ),
+      );
+      print('Supabase initialized successfully');
+    } catch (e) {
+      print('Failed to initialize Supabase: $e');
+      rethrow;
+    }
   }
   
   /// Get Supabase client instance

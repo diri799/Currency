@@ -30,6 +30,30 @@ class CurrencyApi {
 
   // Public: map<code, description>
   Future<Map<String, String>> symbols() async {
+    // Essential currencies that should always be available
+    final essentialCurrencies = {
+      'USD': 'United States Dollar',
+      'EUR': 'Euro',
+      'GBP': 'British Pound Sterling',
+      'NGN': 'Nigerian Naira',
+      'JPY': 'Japanese Yen',
+      'CAD': 'Canadian Dollar',
+      'AUD': 'Australian Dollar',
+      'CHF': 'Swiss Franc',
+      'CNY': 'Chinese Yuan',
+      'INR': 'Indian Rupee',
+      'BRL': 'Brazilian Real',
+      'ZAR': 'South African Rand',
+      'GHS': 'Ghanaian Cedi',
+      'KES': 'Kenyan Shilling',
+      'EGP': 'Egyptian Pound',
+      'MAD': 'Moroccan Dirham',
+      'TND': 'Tunisian Dinar',
+      'DZD': 'Algerian Dinar',
+      'XOF': 'West African CFA Franc',
+      'XAF': 'Central African CFA Franc',
+    };
+
     // exchangerate.host
     try {
       final res = await http
@@ -40,7 +64,9 @@ class CurrencyApi {
         final ok = body['success'] == true || body['symbols'] != null;
         if (ok && body['symbols'] is Map<String, dynamic>) {
           final m = (body['symbols'] as Map<String, dynamic>);
-          return m.map((k, v) => MapEntry(k, (v['description'] as String? ?? k)));
+          final apiCurrencies = m.map((k, v) => MapEntry(k, (v['description'] as String? ?? k)));
+          // Merge API currencies with essential currencies, prioritizing API data
+          return {...essentialCurrencies, ...apiCurrencies};
         }
       }
     } catch (_) {/* fall through */}
@@ -53,18 +79,14 @@ class CurrencyApi {
       if (res.statusCode == 200) {
         final body = jsonDecode(res.body) as Map<String, dynamic>;
         // { "USD": "United States Dollar", ... }
-        return body.map((k, v) => MapEntry(k, (v as String)));
+        final apiCurrencies = body.map((k, v) => MapEntry(k, (v as String)));
+        // Merge API currencies with essential currencies, prioritizing API data
+        return {...essentialCurrencies, ...apiCurrencies};
       }
     } catch (_) {/* fall through */}
 
-    // minimal fallback to keep UI usable
-    return {
-      'USD': 'United States Dollar',
-      'EUR': 'Euro',
-      'GBP': 'British Pound',
-      'NGN': 'Nigerian Naira',
-      'JPY': 'Japanese Yen',
-    };
+    // Return essential currencies as fallback
+    return essentialCurrencies;
   }
 
   // ========== Providers (private) ==========

@@ -2,10 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter/foundation.dart';
 
 import '../../../core/auth/auth_providers.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/currensee_logo.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -54,43 +54,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
-  Future<void> _signInWithGoogle() async {
-    setState(() => _isLoading = true);
-    try {
-      final authService = ref.read(authServiceProvider);
-      await authService.signInWithGoogle();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString()),
-            backgroundColor: CurrenSeeColors.error,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _signInWithApple() async {
-    setState(() => _isLoading = true);
-    try {
-      final authService = ref.read(authServiceProvider);
-      await authService.signInWithApple();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString()),
-            backgroundColor: CurrenSeeColors.error,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,16 +96,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 // Sign Up Button
                 _buildSignUpButton(),
                 
-                const SizedBox(height: 24),
-                
-                // Divider
-                _buildDivider(),
-                
-                const SizedBox(height: 24),
-                
-                // Social Sign In
-                _buildSocialSignIn(),
-                
                 const SizedBox(height: 32),
                 
                 // Sign Up Link
@@ -159,18 +112,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return Column(
       children: [
         // App Logo
-        Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            gradient: CurrenSeeColors.primaryGradient,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: const Icon(
-            Icons.currency_exchange,
-            color: Colors.white,
-            size: 40,
-          ),
+        const CurrenSeeLogo(
+          size: 80,
+          showText: false,
         ).animate().scale(duration: 600.ms, curve: Curves.elasticOut),
         
         const SizedBox(height: 24),
@@ -298,66 +242,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         side: const BorderSide(color: CurrenSeeColors.primary),
         padding: const EdgeInsets.symmetric(vertical: 16),
       ),
-      child: Text(
+      child: const Text(
         'Create Account',
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
-          inherit: false,
+          color: CurrenSeeColors.primary,
         ),
       ),
     ).animate().fadeIn(delay: 1300.ms, duration: 600.ms);
   }
 
-  Widget _buildDivider() {
-    return Row(
-      children: [
-        const Expanded(child: Divider()),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            'or',
-            style: TextStyle(
-              color: CurrenSeeColors.textSecondary,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-        const Expanded(child: Divider()),
-      ],
-    ).animate().fadeIn(delay: 1400.ms, duration: 600.ms);
-  }
-
-  Widget _buildSocialSignIn() {
-    return Column(
-      children: [
-        // Google Sign In
-        OutlinedButton.icon(
-          onPressed: _isLoading ? null : _signInWithGoogle,
-          icon: const Icon(Icons.g_mobiledata, size: 24),
-          label: const Text('Continue with Google'),
-          style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            side: const BorderSide(color: CurrenSeeColors.divider),
-          ),
-        ),
-        
-        const SizedBox(height: 12),
-        
-        // Apple Sign In (only show on non-web platforms)
-        if (!kIsWeb)
-          OutlinedButton.icon(
-            onPressed: _isLoading ? null : _signInWithApple,
-            icon: const Icon(Icons.apple, size: 24),
-            label: const Text('Continue with Apple'),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              side: const BorderSide(color: CurrenSeeColors.divider),
-            ),
-          ),
-      ],
-    ).animate().slideY(delay: 1600.ms, duration: 600.ms);
-  }
 
   Widget _buildSignUpLink() {
     return Row(

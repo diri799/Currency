@@ -1,11 +1,11 @@
 {
-    "name": "currency_1",
-    "short_name": "currency_1",
+    "name": "CurrenSee",
+    "short_name": "CurrenSee",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#4CAF50",
+    "theme_color": "#4CAF50",
+    "description": "Currency conversion app with real-time exchange rates.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

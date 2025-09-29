@@ -1,25 +1,16 @@
 // lib/core/auth/supabase_auth_service.dart
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
-import 'package:flutter/foundation.dart';
 
 import '../supabase/supabase_config.dart';
 import '../supabase/demo_config.dart';
 
 /// Supabase Authentication Service for CurrenSee
-/// Handles email/password, Google, and Apple sign-in
+/// Handles email/password authentication
 class SupabaseAuthService {
   static final SupabaseAuthService _instance = SupabaseAuthService._internal();
   factory SupabaseAuthService() => _instance;
   SupabaseAuthService._internal();
 
-  GoogleSignIn? _googleSignIn;
-  
-  GoogleSignIn get googleSignIn {
-    _googleSignIn ??= GoogleSignIn();
-    return _googleSignIn!;
-  }
 
   /// Current user stream
   Stream<AuthState> get authStateChanges {
@@ -84,6 +75,9 @@ class SupabaseAuthService {
       throw _handleAuthException(e);
     } catch (e) {
       print('General error during sign up: $e');
+      if (e.toString().contains('Connection failed') || e.toString().contains('Operation not permitted')) {
+        throw Exception('Network connection failed. Please check your internet connection and try again.');
+      }
       rethrow;
     }
   }
@@ -110,91 +104,14 @@ class SupabaseAuthService {
       return response;
     } on AuthException catch (e) {
       throw _handleAuthException(e);
-    }
-  }
-
-  /// Sign in with Google
-  Future<AuthResponse> signInWithGoogle() async {
-    if (SupabaseConfig.isDemoMode) {
-      // Demo mode - simulate successful Google login
-      await Future.delayed(const Duration(seconds: 1));
-      return AuthResponse(
-        user: currentUser!,
-        session: null,
-      );
-    }
-    
-    try {
-      // Configure Google Sign-In for web
-      await googleSignIn.signOut(); // Clear any existing sessions
-      
-      // Trigger the authentication flow
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-      if (googleUser == null) {
-        throw Exception('Google sign-in was cancelled');
-      }
-
-      // Obtain the auth details from the request
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-
-      if (googleAuth.idToken == null) {
-        throw Exception('Failed to get Google ID token');
-      }
-
-      // Sign in to Supabase with the Google credential
-      final response = await SupabaseConfig.auth.signInWithIdToken(
-        provider: OAuthProvider.google,
-        idToken: googleAuth.idToken!,
-        accessToken: googleAuth.accessToken,
-      );
-
-      return response;
     } catch (e) {
-      throw Exception('Google sign-in failed: $e');
+      if (e.toString().contains('Connection failed') || e.toString().contains('Operation not permitted')) {
+        throw Exception('Network connection failed. Please check your internet connection and try again.');
+      }
+      rethrow;
     }
   }
 
-  /// Sign in with Apple
-  Future<AuthResponse> signInWithApple() async {
-    if (SupabaseConfig.isDemoMode) {
-      // Demo mode - simulate successful Apple login
-      await Future.delayed(const Duration(seconds: 1));
-      return AuthResponse(
-        user: currentUser!,
-        session: null,
-      );
-    }
-    
-    try {
-      // Check if Apple Sign-In is available (not available on web)
-      if (kIsWeb) {
-        throw Exception('Apple Sign-In is not available on web platform');
-      }
-
-      // Request Apple ID credential
-      final appleCredential = await SignInWithApple.getAppleIDCredential(
-        scopes: [
-          AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName,
-        ],
-      );
-
-      if (appleCredential.identityToken == null) {
-        throw Exception('Failed to get Apple ID token');
-      }
-
-      // Sign in to Supabase with Apple credential
-      final response = await SupabaseConfig.auth.signInWithIdToken(
-        provider: OAuthProvider.apple,
-        idToken: appleCredential.identityToken!,
-        accessToken: appleCredential.authorizationCode,
-      );
-
-      return response;
-    } catch (e) {
-      throw Exception('Apple sign-in failed: $e');
-    }
-  }
 
   /// Send password reset email
   Future<void> sendPasswordResetEmail(String email) async {
@@ -238,10 +155,7 @@ class SupabaseAuthService {
     }
     
     try {
-      await Future.wait([
-        SupabaseConfig.auth.signOut(),
-        googleSignIn.signOut(),
-      ]);
+      await SupabaseConfig.auth.signOut();
     } catch (e) {
       throw Exception('Sign out failed: $e');
     }

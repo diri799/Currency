@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../theme/app_theme.dart';
+import '../widgets/currensee_logo.dart';
 import 'auth_providers.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/shell/root_shell.dart';
@@ -49,13 +50,9 @@ class _LoadingScreen extends StatelessWidget {
               Shimmer.fromColors(
                 baseColor: CurrenSeeColors.divider,
                 highlightColor: AppTheme.primaryLime.withOpacity(0.3),
-                child: Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: CurrenSeeColors.divider,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
+                child: const CurrenSeeLogo(
+                  size: 80,
+                  showText: false,
                 ),
               ),
               

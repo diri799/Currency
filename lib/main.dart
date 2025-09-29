@@ -15,11 +15,20 @@ import 'core/notifications/notification_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize Supabase
-  await SupabaseConfig.initialize();
-  
-  // Initialize notifications
-  await NotificationService().initialize();
+  try {
+    // Initialize Supabase
+    print('Initializing Supabase...');
+    await SupabaseConfig.initialize();
+    print('Supabase initialized successfully');
+    
+    // Initialize notifications
+    print('Initializing notifications...');
+    await NotificationService().initialize();
+    print('Notifications initialized successfully');
+  } catch (e) {
+    print('Error during initialization: $e');
+    // Continue with app launch even if initialization fails
+  }
   
   runApp(
     DevicePreview(
